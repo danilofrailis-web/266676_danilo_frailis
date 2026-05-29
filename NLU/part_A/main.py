@@ -10,14 +10,10 @@ import torch.optim as optim
 
 
 DEVICE = 'cuda:0'
-os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 if __name__ == "__main__":
     #Wrtite the code to load the datasets and to run your functions
-    train_raw, dev_raw, test_raw = load_datasets()
-
-    w2id, slot2id, intent2id = create_dictionaries(train_raw, dev_raw, test_raw)
-    
+    train_raw, dev_raw, test_raw = load_datasets()    
 
     # No set() since we want to compute the cutoff
     words = sum([x['utterance'].split() for x in train_raw], []) # sum(list[list], []) -> from list of list to list
@@ -72,7 +68,7 @@ if __name__ == "__main__":
             criterion_slots = nn.CrossEntropyLoss(ignore_index=PAD_TOKEN)
             criterion_intents = nn.CrossEntropyLoss()
 
-            results_test, intent_test, loss_array_test = run(train_loader=train_loader, 
+            best_model, results_test, intent_test, loss_array_test = run(train_loader=train_loader, 
                                                             dev_loader=dev_loader,
                                                             test_loader=test_loader,
                                                             optimizer=optimizer,
@@ -85,17 +81,17 @@ if __name__ == "__main__":
             intent_acc.append(intent_test['accuracy'])
             slot_f1s.append(results_test['total']['f'])
 
-            PATH = os.path.join("bin", f"lr{lr}_x.pt")
+            PATH = os.path.join("bin", f"lr{lr}_run{x}.pt")
             saving_object = {"epoch": x, 
-                    "model": model.state_dict(), 
+                    "model": best_model.state_dict(), 
                     "optimizer": optimizer.state_dict(), 
-                    "w2id": w2id, 
-                    "slot2id": slot2id, 
-                "intent2id": intent2id}
+                    "w2id": lang.word2id, 
+                    "slot2id": lang.slot2id, 
+                "intent2id": lang.intent2id}
             torch.save(saving_object, PATH)
         
         slot_f1s = np.asarray(slot_f1s)
         intent_acc = np.asarray(intent_acc)
         print('Slot F1', round(slot_f1s.mean(),3), '+-', round(slot_f1s.std(),3))
-        print('Intent Acc', round(intent_acc.mean(), 3), '+-', round(slot_f1s.std(), 3))
+        print('Intent Acc', round(intent_acc.mean(), 3), '+-', round(intent_acc.std(), 3))
 

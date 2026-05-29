@@ -5,6 +5,8 @@ from conll import evaluate
 from sklearn.metrics import classification_report 
 import numpy as np
 import matplotlib.pyplot as plt
+import copy
+
 
 
 def init_weights(mat):
@@ -89,11 +91,14 @@ def eval_loop(data, criterion_slots, criterion_intents, model, lang):
                                           zero_division=False, output_dict=True)
     return results, report_intent, loss_array
 
-def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, criterion_intents, model, lang, n_epochs=200, patience=3):
+def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, criterion_intents, model, lang, n_epochs=200, patience=3, device='cuda:0'):
     losses_train = []
     losses_dev = []
     sampled_epochs = []
     best_f1 = 0
+    pat = patience
+    best_model = None
+
 
     pbar = tqdm(range(n_epochs))
     for x in pbar:
@@ -112,18 +117,17 @@ def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, crite
 
             if f1 > best_f1:
                 best_f1 = f1
+                best_model = copy.deepcopy(model).to(device)
+                pat = patience
             else:
-                patience -= 1
-            if patience <= 0: # Early stopping with patient
+                pat -= 1
+            if pat <= 0: # Early stopping with patient
                 break # Not nice but it keeps the code clean
 
     results_test, intent_test, loss_array_test = eval_loop(test_loader, criterion_slots, 
-                                             criterion_intents, model, lang)
+                                             criterion_intents, best_model, lang)
 
-    #print('Slot F1: ', results_test['total']['f'])
-    #print('Intent Accuracy:', intent_test['accuracy'])
-
-    return results_test, intent_test, loss_array_test
+    return best_model, results_test, intent_test, loss_array_test
 
 
 def plot(sampled_epochs, losses_train, losses_dev):

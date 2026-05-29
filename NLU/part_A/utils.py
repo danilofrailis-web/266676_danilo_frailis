@@ -73,7 +73,7 @@ def load_datasets():
 
     return train_raw, dev_raw, test_raw
 
-def create_dictionaries(train_raw, dev_raw, test_raw):
+'''def create_dictionaries(train_raw, dev_raw, test_raw):
     w2id = {'pad':PAD_TOKEN, 'unk': 1}
     slot2id = {'pad':PAD_TOKEN}
     intent2id = {}
@@ -104,7 +104,7 @@ def create_dictionaries(train_raw, dev_raw, test_raw):
             intent2id[example['intent']] = len(intent2id)
 
     return w2id, slot2id, intent2id
-
+'''
 class Lang():
     def __init__(self, words, intents, slots, cutoff=0, cls=True):
         self.word2id = self.w2id(words, cutoff=cutoff, unk=True, cls=cls)
