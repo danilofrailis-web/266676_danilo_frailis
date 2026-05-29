@@ -91,7 +91,7 @@ def eval_loop(data, criterion_slots, criterion_intents, model, lang):
                                           zero_division=False, output_dict=True)
     return results, report_intent, loss_array
 
-def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, criterion_intents, model, lang, n_epochs=200, patience=3, device='cuda:0'):
+def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, criterion_intents, model, lang, n_epochs=200, patience=2):
     losses_train = []
     losses_dev = []
     sampled_epochs = []
@@ -104,7 +104,7 @@ def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, crite
     for x in pbar:
         loss = train_loop(train_loader, optimizer, criterion_slots, 
                           criterion_intents, model)
-        if x % 5 == 0:
+        if x % 1 == 0:
             sampled_epochs.append(x)
             losses_train.append(np.asarray(loss).mean())
             results_dev, intent_res, loss_dev = eval_loop(dev_loader, criterion_slots, 
@@ -117,25 +117,15 @@ def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, crite
 
             if f1 > best_f1:
                 best_f1 = f1
-                best_model = copy.deepcopy(model).to(device)
+                best_model = copy.deepcopy(model.state_dict())
                 pat = patience
             else:
                 pat -= 1
             if pat <= 0: # Early stopping with patient
                 break # Not nice but it keeps the code clean
-
+    model.load_state_dict(best_model)
     results_test, intent_test, loss_array_test = eval_loop(test_loader, criterion_slots, 
-                                             criterion_intents, best_model, lang)
+                                             criterion_intents, model, lang)
 
     return best_model, results_test, intent_test, loss_array_test
 
-
-def plot(sampled_epochs, losses_train, losses_dev):
-    plt.figure(num = 3, figsize=(8, 5)).patch.set_facecolor('white')
-    plt.title('Train and Dev Losses')
-    plt.ylabel('Loss')
-    plt.xlabel('Epochs')
-    plt.plot(sampled_epochs, losses_train, label='Train loss')
-    plt.plot(sampled_epochs, losses_dev, label='Dev loss')
-    plt.legend()
-    plt.show()
