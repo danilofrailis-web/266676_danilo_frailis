@@ -97,8 +97,7 @@ def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, crite
     sampled_epochs = []
     best_f1 = 0
     pat = patience
-    best_model = model
-
+    best_model = copy.deepcopy(model.state_dict())
 
     pbar = tqdm(range(n_epochs))
     for x in pbar:
