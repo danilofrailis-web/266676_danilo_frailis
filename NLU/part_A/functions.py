@@ -97,7 +97,7 @@ def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, crite
     sampled_epochs = []
     best_f1 = 0
     pat = patience
-    best_model = None
+    best_model = model
 
 
     pbar = tqdm(range(n_epochs))
