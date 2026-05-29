@@ -29,7 +29,6 @@ def load_datasets():
     test_raw = load_data(os.path.join('dataset','ATIS', 'test.json'))
     print('Train samples:', len(tmp_train_raw))
     print('Test samples:', len(test_raw))
-    pprint(tmp_train_raw[0])
     
     intents = [x['intent'] for x in tmp_train_raw] #stratification on intents
     count_y = Counter(intents)
@@ -73,38 +72,6 @@ def load_datasets():
 
     return train_raw, dev_raw, test_raw
 
-'''def create_dictionaries(train_raw, dev_raw, test_raw):
-    w2id = {'pad':PAD_TOKEN, 'unk': 1}
-    slot2id = {'pad':PAD_TOKEN}
-    intent2id = {}
-    # Map the words only from the train set
-    # Map slot and intent labels of train, dev and test set. 'unk' is not needed.
-    for example in train_raw:
-        for w in example['utterance'].split():
-            if w not in w2id:
-                w2id[w] = len(w2id)   
-        for slot in example['slots'].split():
-            if slot not in slot2id:
-                slot2id[slot] = len(slot2id)
-        if example['intent'] not in intent2id:
-            intent2id[example['intent']] = len(intent2id)
-            
-    for example in dev_raw:
-        for slot in example['slots'].split():
-            if slot not in slot2id:
-                slot2id[slot] = len(slot2id)
-        if example['intent'] not in intent2id:
-            intent2id[example['intent']] = len(intent2id)
-            
-    for example in test_raw:
-        for slot in example['slots'].split():
-            if slot not in slot2id:
-                slot2id[slot] = len(slot2id)
-        if example['intent'] not in intent2id:
-            intent2id[example['intent']] = len(intent2id)
-
-    return w2id, slot2id, intent2id
-'''
 class Lang():
     def __init__(self, words, intents, slots, cutoff=0, cls=True):
         self.word2id = self.w2id(words, cutoff=cutoff, unk=True, cls=cls)
