@@ -103,7 +103,7 @@ def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, crite
     for x in pbar:
         loss = train_loop(train_loader, optimizer, criterion_slots, 
                           criterion_intents, model)
-        if x % 4 == 0:
+        if x % 5 == 0:
             sampled_epochs.append(x)
             losses_train.append(np.asarray(loss).mean())
             results_dev, intent_res, loss_dev = eval_loop(dev_loader, criterion_slots, 

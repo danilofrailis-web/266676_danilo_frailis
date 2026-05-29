@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
             PATH = os.path.join("bin", f"lr{lr}_run{x}.pt")
             saving_object = {"epoch": x, 
-                    "model": best_model.state_dict(), 
+                    "model": best_model, 
                     "optimizer": optimizer.state_dict(), 
                     "w2id": lang.word2id, 
                     "slot2id": lang.slot2id, 
