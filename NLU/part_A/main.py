@@ -84,8 +84,18 @@ if __name__ == "__main__":
             
             intent_acc.append(intent_test['accuracy'])
             slot_f1s.append(results_test['total']['f'])
+
+            PATH = os.path.join("bin", f"lr{lr}.pt")
+            saving_object = {"epoch": x, 
+                    "model": model.state_dict(), 
+                    "optimizer": optimizer.state_dict(), 
+                    "w2id": w2id, 
+                    "slot2id": slot2id, 
+                "intent2id": intent2id}
+            torch.save(saving_object, PATH)
         
         slot_f1s = np.asarray(slot_f1s)
         intent_acc = np.asarray(intent_acc)
         print('Slot F1', round(slot_f1s.mean(),3), '+-', round(slot_f1s.std(),3))
         print('Intent Acc', round(intent_acc.mean(), 3), '+-', round(slot_f1s.std(), 3))
+
