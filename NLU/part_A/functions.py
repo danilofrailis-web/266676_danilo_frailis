@@ -127,5 +127,5 @@ def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, crite
     results_test, intent_test, loss_array_test = eval_loop(test_loader, criterion_slots, 
                                              criterion_intents, model, lang)
 
-    return best_model, results_test, intent_test, loss_array_test
+    return model, results_test, intent_test, loss_array_test
 
