@@ -37,7 +37,7 @@ if __name__ == "__main__":
     dev_loader = DataLoader(dev_dataset, batch_size=64, collate_fn=collate_fn)
     test_loader = DataLoader(test_dataset, batch_size=64, collate_fn=collate_fn)
 
-    learning_rates = [0.001, 0.0005, 0.0003, 0.0001]
+    learning_rates = [0.0005, 0.0003, 0.0001, 0.00005]
 
 
 
