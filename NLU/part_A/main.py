@@ -9,7 +9,7 @@ import os
 import torch.optim as optim
 
 
-DEVICE = 'cpu'
+DEVICE = 'cuda:0'
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 if __name__ == "__main__":

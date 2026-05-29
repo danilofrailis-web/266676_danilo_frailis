@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 # Add functions or classes used for data loading and preprocessing
 
 PAD_TOKEN = 0
-DEVICE = 'cpu'
+DEVICE = 'cuda:0'
 
 
 def load_data(path):
