@@ -85,7 +85,7 @@ if __name__ == "__main__":
             intent_acc.append(intent_test['accuracy'])
             slot_f1s.append(results_test['total']['f'])
 
-            PATH = os.path.join("bin", f"lr{lr}.pt")
+            PATH = os.path.join("bin", f"lr{lr}_x.pt")
             saving_object = {"epoch": x, 
                     "model": model.state_dict(), 
                     "optimizer": optimizer.state_dict(), 
