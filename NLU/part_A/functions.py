@@ -91,13 +91,13 @@ def eval_loop(data, criterion_slots, criterion_intents, model, lang):
                                           zero_division=False, output_dict=True)
     return results, report_intent, loss_array
 
-def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, criterion_intents, model, lang, n_epochs=200, patience=3):
+def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, criterion_intents, model, lang, n_epochs=200, patience=3, device='cuda:0'):
     losses_train = []
     losses_dev = []
     sampled_epochs = []
     best_f1 = 0
     pat = patience
-    best_model = copy.deepcopy(model.state_dict())
+    best_model = copy.deepcopy(model).to(device)
 
     pbar = tqdm(range(n_epochs))
     for x in pbar:
@@ -116,15 +116,14 @@ def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, crite
 
             if f1 > best_f1:
                 best_f1 = f1
-                best_model = copy.deepcopy(model.state_dict())
+                best_model = copy.deepcopy(model).to(device)
                 pat = patience
             else:
                 pat -= 1
             if pat <= 0: # Early stopping with patient
                 break # Not nice but it keeps the code clean
-    model.load_state_dict(best_model)
     results_test, intent_test, loss_array_test = eval_loop(test_loader, criterion_slots, 
-                                             criterion_intents, model, lang)
+                                             criterion_intents, best_model, lang)
 
-    return model, results_test, intent_test, loss_array_test
+    return best_model, results_test, intent_test, loss_array_test
 
