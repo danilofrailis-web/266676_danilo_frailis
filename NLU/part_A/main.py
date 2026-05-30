@@ -41,7 +41,7 @@ if __name__ == "__main__":
     d_model = 128
     n_heads = 4
     num_layers = 2
-    ff_dims = [16, 32, 64, 128, 256]
+    ff_dims = [64] #[16, 32, 64, 128, 256]
 
 
     n_epochs = 200
@@ -86,7 +86,7 @@ if __name__ == "__main__":
             intent_acc.append(intent_test['accuracy'])
             slot_f1s.append(results_test['total']['f'])
 
-            PATH = os.path.join("bin", f"lr{lr}_dmodel{d_model}_nheads{n_heads}_nlayers{num_layers}_ffdim{ff_dim}_run{x}.pt")
+            PATH = os.path.join("bin", f"lr{lr}_dmodel{d_model}_nheads{n_heads}_nlayers{num_layers}_ffdim{ff_dim}_dropout_run{x}.pt")
             saving_object = {"epoch": x, 
                     "model": best_model, 
                     "optimizer": optimizer.state_dict(), 

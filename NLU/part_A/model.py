@@ -44,6 +44,8 @@ class GPT2(nn.Module):
         # but needs to be moved with everything else when doing .to(device) 
         self.register_buffer("mask", mask)
 
+        self.dropout = nn.Dropout(dropout)
+
     def forward(self, idx, seq_lens):
         B, L = idx.shape # batch size, sequence length
         # positional embedding at most for position self.pos_emb_size
@@ -61,6 +63,7 @@ class GPT2(nn.Module):
         # We are also predicting a slot for CLS
         # but it will be ignored, as we have a pad token in the ground truth
         x = self.ln_f(x)
+        x = self.dropout(x)
         slots = self.slot_out(x)
 
         # get intent from last token (CLS)
@@ -72,6 +75,7 @@ class GPT2(nn.Module):
             tmp.append(x[i, seq_lens[i]-1]) # -1, we count from 0
         cls_tokens = torch.stack(tmp)
         # get logits for intents
+        cls_tokens = self.dropout(cls_tokens)
         intent = self.intent_out(cls_tokens)
 
         return slots, intent # ((B, L, slot_size), (B, n_intents)
