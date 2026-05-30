@@ -39,7 +39,8 @@ if __name__ == "__main__":
 
     lr = 0.005 #0.0005
     d_model = 128
-    n_head = [1, 2, 4, 8]
+    n_heads = 4
+    num_layer = [2, 4, 6]
 
 
 
@@ -49,7 +50,7 @@ if __name__ == "__main__":
     slots_len = len(lang.id2slot) # pad & cls have the same id
     n_intents = len(lang.intent2id)
 
-    for n_heads in n_head:
+    for num_layers in num_layer:
 
         slot_f1s, intent_acc = [], []
 
@@ -61,7 +62,7 @@ if __name__ == "__main__":
                 pos_emb_size=1024,
                 d_model=d_model,
                 n_heads=n_heads,
-                num_layers=1,
+                num_layers=num_layers,
                 ff_dim=20,
             ).to(DEVICE)
             model.apply(init_weights)
@@ -85,7 +86,7 @@ if __name__ == "__main__":
             intent_acc.append(intent_test['accuracy'])
             slot_f1s.append(results_test['total']['f'])
 
-            PATH = os.path.join("bin", f"lr{lr}_dmodel{d_model}_nheads{n_heads}_run{x}.pt")
+            PATH = os.path.join("bin", f"lr{lr}_dmodel{d_model}_nheads{n_heads}_nlayers{num_layers}_run{x}.pt")
             saving_object = {"epoch": x, 
                     "model": best_model, 
                     "optimizer": optimizer.state_dict(), 
