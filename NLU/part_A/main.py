@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 
 
 
-DEVICE = 'cpu'
+DEVICE = 'cuda:0'
 
 if __name__ == "__main__":
     #Wrtite the code to load the datasets and to run your functions

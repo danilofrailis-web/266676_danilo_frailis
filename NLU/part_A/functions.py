@@ -94,7 +94,7 @@ def eval_loop(data, criterion_slots, criterion_intents, model, lang):
                                           zero_division=False, output_dict=True)
     return results, report_intent, loss_array
 
-def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, criterion_intents, model, lang, n_epochs=200, patience=3, device='cpu'):
+def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, criterion_intents, model, lang, n_epochs=200, patience=3, device='cuda:0'):
     losses_train = []
     losses_dev = []
     sampled_epochs = []
