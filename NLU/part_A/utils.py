@@ -1,17 +1,14 @@
 import json
-from pprint import pprint
-import numpy as np
 from sklearn.model_selection import train_test_split
 from collections import Counter
 import os
 import torch
 import torch.utils.data as data
-from torch.utils.data import DataLoader
+
 
 # Add functions or classes used for data loading and preprocessing
 
 PAD_TOKEN = 0
-DEVICE = 'cuda:0'
 
 
 def load_data(path):
@@ -27,10 +24,9 @@ def load_datasets():
 
     tmp_train_raw = load_data(os.path.join('dataset','ATIS','train.json'))
     test_raw = load_data(os.path.join('dataset','ATIS', 'test.json'))
-    print('Train samples:', len(tmp_train_raw))
-    print('Test samples:', len(test_raw))
     
-    intents = [x['intent'] for x in tmp_train_raw] #stratification on intents
+    portion = 0.10
+    intents = [x['intent'] for x in tmp_train_raw] # We stratify on intents
     count_y = Counter(intents)
 
     labels = []
@@ -38,37 +34,19 @@ def load_datasets():
     mini_train = []
 
     for id_y, y in enumerate(intents):
-        if count_y[y] > 1:# If some intents occurs only once, we put them in training
+        if count_y[y] > 1: # If some intents occurs only once, we put them in training
             inputs.append(tmp_train_raw[id_y])
             labels.append(y)
         else:
             mini_train.append(tmp_train_raw[id_y])
-
-    #random stratify
-    X_train, X_dev, Y_train, Y_dev = train_test_split(inputs, 
-                                                      labels,
-                                                      test_size=portion,
-                                                      random_state=42,
-                                                      shuffle=True,
-                                                      stratify=labels)
-
+    # Random Stratify
+    X_train, X_dev, y_train, y_dev = train_test_split(inputs, labels, test_size=portion, 
+                                                        random_state=42, 
+                                                        shuffle=True,
+                                                        stratify=labels)
     X_train.extend(mini_train)
     train_raw = X_train
     dev_raw = X_dev
-
-    Y_test = [x['intent'] for x in test_raw] 
-
-    print('Train:')
-    pprint({k:round(v/len(Y_train),3)*100 for k, v in sorted(Counter(Y_train).items())})
-    print('Dev:'), 
-    pprint({k:round(v/len(Y_dev),3)*100 for k, v in sorted(Counter(Y_dev).items())})
-    print('Test:') 
-    pprint({k:round(v/len(Y_test),3)*100 for k, v in sorted(Counter(Y_test).items())})
-    print('='*89)
-    # Dataset size
-    print('TRAIN size:', len(train_raw))
-    print('DEV size:', len(dev_raw))
-    print('TEST size:', len(test_raw))
 
     return train_raw, dev_raw, test_raw
 
@@ -79,10 +57,10 @@ class Lang():
         self.intent2id = self.lab2id(intents, pad=False, cls=False)
         self.id2word = {v:k for k, v in self.word2id.items()}
         # cls will have the same id as the pad token
-        self.id2slot = {v:k for k, v in self.slot2id.items() if not cls or k != 'cls'}
+        self.id2slot = {v:k for k, v in self.slot2id.items() if k != 'cls'}
         self.id2intent = {v:k for k, v in self.intent2id.items()}
         
-    def w2id(self, elements, cutoff=None, unk=True, cls=True):
+    def w2id(self, elements, cutoff=0, unk=True, cls=True):
         vocab = {'pad': PAD_TOKEN}
         if unk:
             vocab['unk'] = len(vocab)
@@ -106,7 +84,7 @@ class Lang():
             vocab['cls'] = PAD_TOKEN
         return vocab
     
-class IntentsAndSlots(data.Dataset):
+class IntentsAndSlots(data.Dataset): 
     # Mandatory methods are __init__, __len__ and __getitem__
     def __init__(self, dataset, lang, unk='unk', cls='cls', add_cls=True):
         self.utterances = []
@@ -138,7 +116,7 @@ class IntentsAndSlots(data.Dataset):
     # Auxiliary methods
     
     def mapping_lab(self, data, mapper):
-        return [mapper[x] if x in mapper else mapper[self.unk] for x in data]
+        return [mapper.get(x, 0) for x in data]
     
     def mapping_seq(self, data, mapper): # Map sequences to number
         res = []
@@ -154,7 +132,7 @@ class IntentsAndSlots(data.Dataset):
             res.append(tmp_seq)
         return res
     
-def collate_fn(data):
+def collate_fn(data, device):
     def merge(sequences):
         '''
         merge from batch * sent_len to batch * max_len 
@@ -179,10 +157,10 @@ def collate_fn(data):
     y_slots, y_lengths = merge(data_by_key["slots"])
     intent = torch.LongTensor(data_by_key["intent"])
     
-    src_utt = src_utt.to(DEVICE) # We load the Tensor on our selected device
-    y_slots = y_slots.to(DEVICE)
-    intent = intent.to(DEVICE)
-    y_lengths = torch.LongTensor(y_lengths).to(DEVICE)
+    src_utt = src_utt.to(device) # We load the Tensor on our selected device
+    y_slots = y_slots.to(device)
+    intent = intent.to(device)
+    y_lengths = torch.LongTensor(y_lengths).to(device)
     
     new_item = {}
     new_item["utterances"] = src_utt

@@ -4,9 +4,12 @@ from utils import *
 from model import *
 import os
 import torch.optim as optim
+from functools import partial
+from torch.utils.data import DataLoader
 
 
-DEVICE = 'cuda:0'
+
+DEVICE = 'cpu'
 
 if __name__ == "__main__":
     #Wrtite the code to load the datasets and to run your functions
@@ -19,22 +22,24 @@ if __name__ == "__main__":
     corpus = train_raw + dev_raw + test_raw 
     slots = set(sum([line['slots'].split() for line in corpus],[]))
     intents = set([line['intent'] for line in corpus])
-
     # words are only from te training set
     # labels from the whole corpus (we do not want unk labels)
     lang = Lang(words, intents, slots, cutoff=0)
 
     # Create our datasets
     train_dataset = IntentsAndSlots(train_raw, lang)
+
     dev_dataset = IntentsAndSlots(dev_raw, lang)
     test_dataset = IntentsAndSlots(test_raw, lang)
 
     #dataloader instantiations
-    train_loader = DataLoader(train_dataset, batch_size=128, collate_fn=collate_fn,  shuffle=True)
-    dev_loader = DataLoader(dev_dataset, batch_size=64, collate_fn=collate_fn)
-    test_loader = DataLoader(test_dataset, batch_size=64, collate_fn=collate_fn)
+    train_loader = DataLoader(train_dataset, batch_size=128, collate_fn=partial(collate_fn, device=DEVICE),  shuffle=True)
+    dev_loader = DataLoader(dev_dataset, batch_size=64, collate_fn=partial(collate_fn, device=DEVICE))
+    test_loader = DataLoader(test_dataset, batch_size=64, collate_fn=partial(collate_fn, device=DEVICE))
 
-    learning_rates = [0.0005, 0.0003, 0.0001, 0.00005]
+    lr = 0.005 #0.0005
+    d_model = 128
+    n_head = [1, 2, 4, 8]
 
 
 
@@ -44,7 +49,7 @@ if __name__ == "__main__":
     slots_len = len(lang.id2slot) # pad & cls have the same id
     n_intents = len(lang.intent2id)
 
-    for lr in learning_rates:
+    for n_heads in n_head:
 
         slot_f1s, intent_acc = [], []
 
@@ -54,8 +59,8 @@ if __name__ == "__main__":
                 slots_len,
                 n_intents,
                 pos_emb_size=1024,
-                d_model=20,
-                n_heads=1,
+                d_model=d_model,
+                n_heads=n_heads,
                 num_layers=1,
                 ff_dim=20,
             ).to(DEVICE)
@@ -73,12 +78,14 @@ if __name__ == "__main__":
                                                             criterion_intents=criterion_intents,
                                                             model=model,
                                                             lang=lang,
-                                                            n_epochs=n_epochs)
+                                                            n_epochs=n_epochs,
+                                                            patience=3,
+                                                            device=DEVICE)
             
             intent_acc.append(intent_test['accuracy'])
             slot_f1s.append(results_test['total']['f'])
 
-            PATH = os.path.join("bin", f"lr{lr}_run{x}.pt")
+            PATH = os.path.join("bin", f"lr{lr}_dmodel{d_model}_nheads{n_heads}_run{x}.pt")
             saving_object = {"epoch": x, 
                     "model": best_model, 
                     "optimizer": optimizer.state_dict(), 

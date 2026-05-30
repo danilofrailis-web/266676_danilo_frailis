@@ -4,7 +4,6 @@ from tqdm.auto import tqdm
 from conll import evaluate
 from sklearn.metrics import classification_report 
 import numpy as np
-import matplotlib.pyplot as plt
 import copy
 
 
@@ -75,7 +74,11 @@ def eval_loop(data, criterion_slots, criterion_intents, model, lang):
                 ref_slots.append([(utterance[id_el], elem) for id_el, elem in enumerate(gt_slots)])
                 tmp_seq = []
                 for id_el, elem in enumerate(to_decode):
-                    tmp_seq.append((utterance[id_el], lang.id2slot[elem]))
+                    predicted_tag = lang.id2slot.get(elem, 'O')
+                    if predicted_tag in ['pad', 'cls']:
+                        predicted_tag = 'O'
+
+                    tmp_seq.append((utterance[id_el], predicted_tag))
                 hyp_slots.append(tmp_seq)
     try:            
         results = evaluate(ref_slots, hyp_slots)
@@ -91,7 +94,7 @@ def eval_loop(data, criterion_slots, criterion_intents, model, lang):
                                           zero_division=False, output_dict=True)
     return results, report_intent, loss_array
 
-def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, criterion_intents, model, lang, n_epochs=200, patience=3, device='cuda:0'):
+def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, criterion_intents, model, lang, n_epochs=200, patience=3, device='cpu'):
     losses_train = []
     losses_dev = []
     sampled_epochs = []
@@ -121,6 +124,7 @@ def run(train_loader, dev_loader, test_loader, optimizer, criterion_slots, crite
             else:
                 pat -= 1
             if pat <= 0: # Early stopping with patient
+                print("ENDOFPATIENCE")
                 break # Not nice but it keeps the code clean
     results_test, intent_test, loss_array_test = eval_loop(test_loader, criterion_slots, 
                                              criterion_intents, best_model, lang)
