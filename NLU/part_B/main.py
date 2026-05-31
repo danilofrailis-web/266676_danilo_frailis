@@ -41,10 +41,20 @@ if __name__ == "__main__":
     criterion_slots = nn.CrossEntropyLoss(ignore_index=-100)
     criterion_intents = nn.CrossEntropyLoss()
 
-    results_test, intent_test, _ = run(train_loader, dev_loader, test_loader,
+    results_test, intent_test, best_model = run(train_loader, dev_loader, test_loader,
                                        model, optimizer, criterion_slots, criterion_intents,
                                        lang, tokenizer, n_epochs=20, patience=3, device=DEVICE)
     
+    model.load_state_dict(best_model)
+
+    PATH = os.path.join("bin", f"GPT2_lr0.00005.pt")
+    saving_object = {
+            "model": model, 
+            "optimizer": optimizer.state_dict(), 
+            "w2id": lang.word2id, 
+            "slot2id": lang.slot2id, 
+        "intent2id": lang.intent2id}
+    torch.save(saving_object, PATH)
     print(f"\nFinal Test Slot F1: {results_test['total']['f']:.4f}")
     print(f"Final Test Intent Acc: {intent_test['accuracy']:.4f}")
 
