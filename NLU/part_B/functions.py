@@ -106,6 +106,6 @@ def run(train_loader, dev_loader, test_loader, model, optimizer, criterion_slots
             break
 
     model.load_state_dict(best_model)
-    results_test, intent_test = eval_loop(test_loader, model, lang, tokenizer)
+    results_test, intent_test = eval_loop(test_loader, model, lang)
     return results_test, intent_test, best_model
 
