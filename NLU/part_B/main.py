@@ -6,7 +6,7 @@ from functions import *
 from model import *
 import warnings
 
-DEVICE = 'cpu'
+DEVICE = 'cuda:0'
 MODEL_NAME = 'openai-community/gpt2' # 'bert-base-uncased'
 
 if __name__ == "__main__":
