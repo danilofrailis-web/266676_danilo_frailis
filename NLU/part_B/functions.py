@@ -65,6 +65,7 @@ def eval_loop(data, model, lang):
         output_dict=True, 
         zero_division=0
     )
+    print(intent_report.keys())
     slot_results = evaluate(ref_slots, hyp_slots)
     
     return slot_results, intent_report
