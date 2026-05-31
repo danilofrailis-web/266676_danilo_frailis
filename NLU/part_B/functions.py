@@ -11,7 +11,6 @@ def train_loop(data, optimizer, criterion_slots, criterion_intents, model):
     loss_array = []
     print(len(data))
     for batch in data:
-        print("PIPPO")
         optimizer.zero_grad()
         # HF models require input_ids and attention_mask
         slots, intent = model(batch['input_ids'], batch['attention_mask'])
