@@ -5,6 +5,8 @@ from conll import evaluate
 import numpy as np
 from tqdm.auto import tqdm
 import copy
+from sklearn.metrics import accuracy_score
+
 
 def train_loop(data, optimizer, criterion_slots, criterion_intents, model):
     model.train()
@@ -66,6 +68,7 @@ def eval_loop(data, model, lang):
         zero_division=0
     )
     print(intent_report.keys())
+    intent_report["accuracy"] = accuracy_score(ref_intents, hyp_intents)
     slot_results = evaluate(ref_slots, hyp_slots)
     
     return slot_results, intent_report
