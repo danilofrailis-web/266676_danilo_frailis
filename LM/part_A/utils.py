@@ -35,7 +35,7 @@ def collate_fn(batch, tokenizer, device):
 
     return input_ids, labels, n_tokens
 
-def instantiate_loader(train_path="dataset/PennTreeBank/ptb.train.txt", dev_path="dataset/PennTreeBank/ptb.valid.txt", test_path="dataset/PennTreeBank/ptb.test.txt", dev='cpu', trainb_size=8, devb_size=16, testb_size=16):
+def instantiate_loader(train_path="dataset/PennTreeBank/ptb.train.txt", dev_path="dataset/PennTreeBank/ptb.valid.txt", test_path="dataset/PennTreeBank/ptb.test.txt", dev='cuda:0', trainb_size=8, devb_size=16, testb_size=16):
     train_raw = read_file(train_path)
     dev_raw = read_file(dev_path)
     test_raw = read_file(test_path)

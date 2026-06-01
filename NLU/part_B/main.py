@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     results_test, intent_test, best_model = run(train_loader, dev_loader, test_loader,
                                        model, optimizer, criterion_slots, criterion_intents,
-                                       lang, tokenizer, n_epochs=20, patience=3, device=DEVICE)
+                                       lang, n_epochs=20, patience=3)
     
     model.load_state_dict(best_model)
 

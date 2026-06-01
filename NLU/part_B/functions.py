@@ -73,7 +73,7 @@ def eval_loop(data, model, lang):
     
     return slot_results, intent_report
 
-def run(train_loader, dev_loader, test_loader, model, optimizer, criterion_slots, criterion_intents, lang, tokenizer, n_epochs=50, patience=5, device='cuda:0'):
+def run(train_loader, dev_loader, test_loader, model, optimizer, criterion_slots, criterion_intents, lang, n_epochs=50, patience=5):
     losses_train = []
     losses_dev = []
     sampled_epochs = []
