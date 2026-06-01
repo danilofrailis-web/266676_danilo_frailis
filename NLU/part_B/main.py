@@ -7,7 +7,7 @@ from model import *
 import warnings
 
 DEVICE = 'cuda:0'
-MODEL_NAME ='bert-base-uncased'  #  'openai-community/gpt2'
+MODEL_NAME = 'openai-community/gpt2' # 'bert-base-uncased'
 
 if __name__ == "__main__":
     warnings.filterwarnings("ignore", category=FutureWarning)
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     
     model.load_state_dict(best_model)
 
-    PATH = os.path.join("bin", f"bert_lr0.00005.pt")
+    PATH = os.path.join("bin", f"GPT2_lr0.00005.pt")
     saving_object = {
             "model": model, 
             "optimizer": optimizer.state_dict(), 
