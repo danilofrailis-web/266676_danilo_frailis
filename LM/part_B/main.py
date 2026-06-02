@@ -19,7 +19,7 @@ if __name__ == "__main__":
     tokenizer.pad_token = tokenizer.eos_token
     vocab_len = len(tokenizer)
 
-    alphas = [16]
+    alphas = [32]
     for alpha in alphas:
         model = GPT2_LoRA.from_pretrained("openai-community/gpt2", alpha=alpha, rank=alpha)
         model.to(DEVICE)
