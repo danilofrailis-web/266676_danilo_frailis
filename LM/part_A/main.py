@@ -31,10 +31,10 @@ if __name__ == "__main__":
     model = Model(
         vocab_len,
         pos_embed_size=1024,
-        d_model=20,
-        n_heads=1,
-        num_layers=1,
-        ff_dim=20
+        d_model=d_model,
+        n_heads=n_heads,
+        num_layers=n_layers,
+        ff_dim=ff_dim
     ).to(DEVICE)
     model.apply(init_weights)
 
@@ -53,36 +53,3 @@ if __name__ == "__main__":
                         device=DEVICE)
 
     print(ppl)
-
-    path = f'bin/baseline.pt'
-    torch.save(current_model.state_dict(), path)
-
-
-    model = Model(
-        vocab_len,
-        pos_embed_size=1024,
-        d_model=128,
-        n_heads=1,
-        num_layers=1,
-        ff_dim=20
-    ).to(DEVICE)
-    model.apply(init_weights)
-
-
-    optimizer = optim.AdamW(model.parameters(), lr=lr)
-
-    current_model, ppl, loss = run(model=model,
-                        train_loader= train_loader,
-                        dev_loader=dev_loader,
-                        test_loader=test_loader,
-                        criterion_train=criterion_train,
-                        criterion_eval=criterion_eval,
-                        optimizer=optimizer,
-                        n_epochs=15,
-                        patience=3,
-                        device=DEVICE)
-
-    print(ppl)
-
-    path = f'bin/lr0003_dmodel28.pt'
-    torch.save(current_model.state_dict(), path)

@@ -31,7 +31,7 @@ class Model(nn.Module):
         self.ln_f = nn.LayerNorm(d_model)
         #output layer
         self.lm_head = nn.Linear(d_model, vocab_size)
-        #self.lm_head.weight = self.token_embed.weight
+        self.lm_head.weight = self.token_embed.weight
 
         mask = torch.tril(torch.ones(pos_embed_size, pos_embed_size)).unsqueeze(0).unsqueeze(0)
         self.register_buffer("mask", mask)
